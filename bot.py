@@ -6,8 +6,8 @@ import database
 
 
 class Bot:
-    def __init__(self):
-        self.bot = telebot.TeleBot('1280237155:AAF4Blri2FajDY6fcPzkkqYnX2w8Lrbsvuo')
+    def __init__(self, token: str):
+        self.bot = telebot.TeleBot(token)
         self.db = database.Database()
         self.buffer_lesson = ['0', '0', '0']
 
@@ -103,18 +103,9 @@ class Bot:
         self.bot.register_next_step_handler(message, self.add_time(message))
 
     def add_time(self, message: telebot.types.Message):
-        if message.text.lower() == 'понедельник':
-            self.buffer_lesson[0] = 'Monday'
-        elif message.text.lower() == 'вторник':
-            self.buffer_lesson[0] = 'Tuesday'
-        elif message.text.lower() == 'среда':
-            self.buffer_lesson[0] = 'Wednesday'
-        elif message.text.lower() == 'четверг':
-            self.buffer_lesson[0] = 'Thursday'
-        elif message.text.lower() == 'пятница':
-            self.buffer_lesson[0] = 'Friday'
-        elif message.text.lower() == 'суббота':
-            self.buffer_lesson[0] = 'Saturday'
+        weekdays = {'понедельник': 'Monday', 'вторник': 'Tuesday', 'среда': 'Wednesday',
+                    'четверг': 'Thursday', 'пятница': 'Friday', 'суббота': 'Saturday'}
+        self.buffer_lesson[0] = weekdays[message.text.lower()]
 
         self.bot.send_message(message.chat.id, 'Введи время: ')
         self.bot.register_next_step_handler(message, self.new_lesson(message))
@@ -144,7 +135,10 @@ class Bot:
 
 
 if __name__ == '__main__':
-    bot = Bot()
+    with open('token.txt', 'r') as f:
+        token = f.readline()
+
+    bot = Bot(token)
     while True:
         try:
             bot.plan()
